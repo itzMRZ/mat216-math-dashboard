@@ -154,6 +154,38 @@
         code, pre { background: #1a1a1a; color: #ddd; border: 1px solid #333; border-radius: 6px; }
         pre { padding: 10px 12px; overflow: auto; }
         code { padding: 2px 6px; border-radius: 4px; }
+
+        /* Print stylesheet: black-on-white, hide interactive controls */
+        @media print {
+            :root {
+                --bg-color: #ffffff;
+                --container-bg: #ffffff;
+                --block-bg: #ffffff;
+                --text-primary: #000000;
+                --text-secondary: #333333;
+                --header-color: #000000;
+                --border-color: #cccccc;
+            }
+            body { background: #fff; color: #000; }
+            .container { background: #fff; box-shadow: none; }
+            /* Hide non-essential UI */
+            #progress-container,
+            .progress-controls,
+            .monitor-section,
+            .ask-ai,
+            input[type="checkbox"],
+            .problem-source,
+            .tab-header { display: none !important; }
+            /* Show all tab content */
+            .tab-panel { display: block !important; }
+            /* Simplify visuals for print */
+            li { background: #fff; border-color: #ccc; }
+            .tag-main, .tag-sub { display: none !important; }
+            a { color: #000; text-decoration: none; }
+            /* Force math to black for legibility */
+            .katex, .katex * { color: #000 !important; }
+            .katex-display .eq-number { color: #000 !important; }
+        }
     </style>
 </head>
 <body>
@@ -355,6 +387,10 @@
             if (typeof renderMathInElement === 'function') {
                 renderMathInElement(document.body, {
                     delimiters: [
+                        // Support content that used double-escaped delimiters in HTML
+                        {left: '\\\\[', right: '\\\\]', display: true},
+                        {left: '\\\\(', right: '\\\\)', display: false},
+                        // Standard delimiters
                         {left: '$$', right: '$$', display: true},
                         {left: '\\[', right: '\\]', display: true},
                         {left: '$', right: '$', display: false},
