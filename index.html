@@ -138,6 +138,25 @@
         .problem-source { display: block; margin-top: 12px; font-size: 0.8em; background-color: #444; padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); width: fit-content; }
         .katex-display { margin: 8px 0 !important; }
 
+        /* Resource row below videos */
+        .resource-row { display: flex; gap: 10px; align-items: center; margin: 8px 0 0 35px; flex-wrap: wrap; }
+        .resource-row .tag { background: #3a3a3a; border: 1px solid #4a4a4a; color: #bbb; padding: 2px 6px; border-radius: 6px; font-size: 0.75em; }
+        .slide-link { background: #2a2a2a; color: #fff; padding: 6px 10px; border-radius: 6px; text-decoration: none; border: 1px solid #3a3a3a; }
+        .slide-link:hover { background: #333; }
+        .summarize-btn { background: var(--accent-primary); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .summarize-btn:hover { opacity: 0.95; }
+
+        /* Summary modal */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { width: min(820px, 92vw); max-height: 88vh; overflow: auto; background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .modal header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .modal header h3 { margin: 0; }
+        .modal .content { padding: 16px; }
+        .modal .close { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+        .modal .section { margin-bottom: 14px; }
+        .modal .section h4 { margin: 0 0 6px; color: var(--accent-gold); }
+        .modal ul { margin: 4px 0 0 20px; }
+
         /* New Tag Styles */
         .tags-container {
             margin-top: 10px;
@@ -499,6 +518,17 @@
     </div>
 </div>
 
+<!-- Summary Modal -->
+<div id="summary-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" role="document">
+    <header>
+      <h3 id="summary-title">Summary</h3>
+      <button class="close" id="summary-close" aria-label="Close">Close</button>
+    </header>
+    <div class="content" id="summary-content"></div>
+  </div>
+</div>
+
 <script>
     // This script will run only after the entire page (HTML, CSS, external scripts) is fully loaded.
     window.onload = function() {
@@ -645,9 +675,61 @@
         // --- INITIALIZATION ---
         
         function init() {
+            // Inject slide links and summarize buttons under each video item
+            (function buildVideoResources(){
+                const slideMap = {
+                    'vid-21': 'slides/Eigenvalue.pdf',
+                    'vid-22': 'slides/Eigenvector.pdf',
+                    'vid-23': 'slides/Diagonalization.pdf',
+                    'vid-31': 'slides/Half-Range-Fourier-Series.pdf',
+                    'vid-32': 'slides/Series-Sum-Parseval.pdf',
+                    'vid-33': 'slides/Complex-Fourier-Series.pdf',
+                    'vid-34': 'slides/Fourier-Transform.pdf',
+                    'vid-35': 'slides/Fourier-Cosine-Sine-Transform.pdf'
+                };
+                const topicMap = {
+                    'vid-21': 'Eigenvalue',
+                    'vid-22': 'Eigenvector',
+                    'vid-23': 'Diagonalization',
+                    'vid-31': 'Half-Range Fourier Series',
+                    'vid-32': "Series Sum using Fourier Series and Parseval's Identity",
+                    'vid-33': 'Complex Fourier Series',
+                    'vid-34': 'General Fourier Transformation / Fourier Integral',
+                    'vid-35': 'Fourier Cosine & Sine Transform'
+                };
+                Object.keys(slideMap).forEach(id => {
+                    const li = document.getElementById(id)?.closest('li');
+                    if (!li) return;
+                    // Avoid duplicating
+                    if (li.nextElementSibling && li.nextElementSibling.classList?.contains('resource-row')) return;
+                    const row = document.createElement('div');
+                    row.className = 'resource-row';
+                    const slideHref = slideMap[id];
+                    const slideA = document.createElement('a');
+                    slideA.className = 'slide-link';
+                    slideA.href = slideHref;
+                    slideA.target = '_blank';
+                    slideA.rel = 'noopener';
+                    slideA.textContent = 'Open Slides (PDF)';
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.textContent = 'Slides';
+                    const sumBtn = document.createElement('button');
+                    sumBtn.className = 'summarize-btn';
+                    sumBtn.type = 'button';
+                    sumBtn.textContent = 'Summarize';
+                    sumBtn.setAttribute('data-topic', topicMap[id] || '');
+                    row.appendChild(tag);
+                    row.appendChild(slideA);
+                    row.appendChild(sumBtn);
+                    li.parentElement.insertBefore(row, li.nextSibling);
+                });
+            })();
+
             // Setup all event listeners
             checkboxes.forEach(cb => cb.addEventListener('change', handleCheckboxChange));
             document.querySelectorAll('.tab-button').forEach(btn => btn.addEventListener('click', handleTabClick));
+
             // Removed legacy single Ask AI click handler; we now provide four direct solution links
             (function attachSolutionLinksAcross() {
                 const panels = ['#tab-past-paper', '#tab-ai-generated', '#tab-provided'];
@@ -687,6 +769,60 @@
             importFileInput.addEventListener('change', handleImport);
             document.getElementById('resetProgress').addEventListener('click', handleReset);
             
+            // Summary modal logic and data
+            const summaryData = [
+              { name: 'Eigenvalue', summary: 'A scalar number $\\lambda$ is called an eigenvalue of a linear transformation $T$ from $V$ to $V$ if there exists a non-zero vector \\vec{v} such that $T(\\vec{v}) = \\lambda \\vec{v}$. Similarly, for an $n \\times n$ square matrix $A$, $\\lambda$ is an eigenvalue if there is a non-zero vector \\vec{v} where $A \\vec{v} = \\lambda \\vec{v}$. The vector \\vec{v} is called an eigenvector of the eigenvalue $\\lambda$.', equations: ['T(\\vec{v}) = \\lambda \\vec{v}', 'A \\vec{v} = \\lambda \\vec{v}', '\\det(A - \\lambda I) = 0'], rules: ['Eigenvalues of an $n \\times n$ matrix $A$ are found by solving the characteristic equation, $\\det(A - \\lambda I) = 0$, where $I$ is the $n \\times n$ identity matrix.', 'For a square matrix $A$ of size $n \\times n$, if $\\lambda_1, \\lambda_2, \\dots, \\lambda_n$ are the eigenvalues of $A$, then:', 'Trace$(A) = \\lambda_1 + \\lambda_2 + \\dots + \\lambda_n$', 'Determinant$(A) = \\lambda_1 \\cdot \\lambda_2 \\cdot \\dots \\cdot \\lambda_n$', 'If $A$ is an Upper or Lower Triangular Matrix, its diagonal elements are the Eigenvalues.'], things_to_be_careful_about: ['The vector \\vec{v} must not be equal to 0.', 'Correctly expanding the determinant for the characteristic equation is crucial for finding the eigenvalues.'] },
+              { name: 'Eigenvector', summary: 'A non-zero vector \\vec{v} is an eigenvector of an $n \\times n$ square matrix $A$ corresponding to eigenvalue $\\lambda$ if $A \\vec{v} = \\lambda \\vec{v}$. Eigenvalues are found by solving $\\det(A - \\lambda I) = 0$.', equations: ['A \\vec{v} = \\lambda \\vec{v}', '(A - \\lambda I) \\vec{v} = 0'], rules: ['If $\\lambda$ is an eigenvalue of $A$, then a non-trivial solution \\vec{v} of $(A - \\lambda I) \\vec{v} = 0$ is an eigenvector of $A$.', 'There exist infinitely many eigenvectors for each eigenvalue.', 'If \\vec{v} is an eigenvector, then any scalar multiple of \\vec{v} is also an eigenvector.'], things_to_be_careful_about: ['Eigenvectors must be non-trivial (non-zero) solutions.', 'Solve the system $(A-\\lambda I) \\vec{v}=0$ carefully for each eigenvalue.'] },
+              { name: 'Diagonalization', summary: 'An $n \\times n$ matrix $A$ is diagonalizable if there exists an invertible matrix $P$ such that $A = P D P^{-1}$ with diagonal $D$.', equations: ['A = P D P^{-1}', 'D = \\mathrm{diag}(\\lambda_1, \\lambda_2, \\lambda_3, \dots)', 'A^k = P D^k P^{-1}'], rules: ['An $n \\times n$ matrix is diagonalizable iff it has $n$ linearly independent eigenvectors.', '$D$ holds eigenvalues on the diagonal; columns of $P$ are corresponding eigenvectors in the same order.', 'For powers $A^k$, raise each diagonal entry of $D$ to $k$.'], things_to_be_careful_about: ['Not diagonalizable if geometric multiplicities do not add up to $n$.', 'Order eigenvalues in $D$ to match column order of eigenvectors in $P$.'] },
+              { name: 'General Fourier Series', summary: 'Represent a periodic function of period $2L$ as a sum of sines and cosines.', equations: ['f(x) = \\frac{a_0}{2} + \\sum_{n=1}^{\\infty} a_n \\cos(\\tfrac{n\\pi x}{L}) + \\sum_{n=1}^{\\infty} b_n \\sin(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{1}{L} \\int_{-L}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', 'b_n = \\frac{1}{L} \\int_{-L}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['L is half the period.', 'You can integrate over any interval of length $2L$.'], things_to_be_careful_about: ['Pick the correct $L$ from the period.', 'Handle piecewise definitions by breaking integrals.'] },
+              { name: 'Even and Odd Cases of Fourier Series', summary: 'On $(-L,L)$: even functions have cosine-only series; odd functions have sine-only series.', equations: ['\\text{Even: } f(x) = \\frac{a_0}{2} + \\sum a_n \\cos(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', '\\text{Odd: } f(x) = \\sum b_n \\sin(\\tfrac{n\\pi x}{L})', 'b_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['Even: $b_n=0$; Odd: $a_n=0$.'], things_to_be_careful_about: ['Verify parity on a symmetric interval.'] },
+              { name: 'Half-Range Fourier Series', summary: 'Extend $(0,L)$ data to $(-L,L)$ by even/odd to obtain cosine/sine series.', equations: ['\\text{Cosine: } f(x) = \\frac{a_0}{2} + \\sum a_n \\cos(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', '\\text{Sine: } f(x) = \\sum b_n \\sin(\\tfrac{n\\pi x}{L})', 'b_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['Choose cosine (even extension) or sine (odd extension) based on problem needs.'], things_to_be_careful_about: ['Use $L$ as the length of $(0,L)$.'] },
+              { name: "Series Sum using Fourier Series and Parseval's Identity", summary: 'Use Fourier series values or Parseval to evaluate infinite sums.', equations: ['\\frac{1}{L} \\int_{-L}^{L} (f(x))^2 dx = \\frac{a_0^2}{2} + \\sum_{n=1}^{\\infty} (a_n^2 + b_n^2)'], rules: ['Evaluate series at convergence points to get sums.', 'Parseval relates integral of $f^2$ to squared coefficients.'], things_to_be_careful_about: ['Choose evaluation points carefully with discontinuities.'] },
+              { name: 'Complex Fourier Series', summary: 'Express $f$ using complex exponentials $c_n e^{i n\\pi x/L}$ with $n\\in\\mathbb{Z}$.', equations: ['f(x) = \\sum_{n=-\\infty}^{\\infty} c_n e^{i \\frac{n\\pi x}{L}}', 'c_n = \\frac{1}{2L} \\int_{-L}^{L} f(x) e^{-i \\frac{n\\pi x}{L}} dx'], rules: ['Sum over all integers $n$.'], things_to_be_careful_about: ['Mind the negative sign in $e^{-i n\\pi x/L}$.'] },
+              { name: 'General Fourier Transformation / Fourier Integral', summary: 'Transform non-periodic $f$ to frequency domain and back.', equations: ['F(\\omega) = \\int_{-\\infty}^{\\infty} f(x) e^{-i\\omega x} dx', 'f(x) = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} F(\\omega) e^{i\\omega x} d\\omega'], rules: ['Integrals are over $(-\\infty,\\infty)$.', 'Here the $1/(2\\pi)$ factor is in the inverse transform.'], things_to_be_careful_about: ['Evaluate improper integrals carefully.'] },
+              { name: 'Fourier Cosine & Sine Transform', summary: 'Transforms on $x\\ge 0$: cosine (even extension) and sine (odd extension).', equations: ['F_c(\\omega) = \\int_{0}^{\\infty} f(x) \\cos(\\omega x) dx', 'f(x) = \\frac{2}{\\pi} \\int_{0}^{\\infty} F_c(\\omega) \\cos(\\omega x) d\\omega', 'F_s(\\omega) = \\int_{0}^{\\infty} f(x) \\sin(\\omega x) dx', 'f(x) = \\frac{2}{\\pi} \\int_{0}^{\\infty} F_s(\\omega) \\sin(\\omega x) d\\omega'], rules: ['Domain is $x\\ge 0$; integrals from $0$ to $\\infty$.'], things_to_be_careful_about: ['Use correct inverse scaling $2/\\pi$.'] }
+            ];
+            const byName = Object.fromEntries(summaryData.map(s => [s.name, s]));
+            const backdrop = document.getElementById('summary-backdrop');
+            const titleEl = document.getElementById('summary-title');
+            const contentEl = document.getElementById('summary-content');
+            const closeEl = document.getElementById('summary-close');
+            const openSummary = (topic) => {
+                const data = byName[topic];
+                if (!data) return;
+                titleEl.textContent = topic + ' — Summary';
+                contentEl.innerHTML = '';
+                const addSection = (heading, body) => {
+                    const sec = document.createElement('div');
+                    sec.className = 'section';
+                    const h4 = document.createElement('h4'); h4.textContent = heading; sec.appendChild(h4);
+                    if (Array.isArray(body)) {
+                        const ul = document.createElement('ul');
+                        body.forEach(t => { const li = document.createElement('li'); li.innerHTML = t; ul.appendChild(li); });
+                        sec.appendChild(ul);
+                    } else {
+                        const p = document.createElement('div'); p.innerHTML = body; sec.appendChild(p);
+                    }
+                    contentEl.appendChild(sec);
+                };
+                addSection('Overview', data.summary);
+                if (data.equations?.length) addSection('Key Equations', data.equations.map(e => `$$${e}$$`));
+                if (data.rules?.length) addSection('Rules', data.rules);
+                if (data.things_to_be_careful_about?.length) addSection('Things to be careful about', data.things_to_be_careful_about);
+                backdrop.style.display = 'flex';
+                // Typeset math in modal
+                typesetMath(contentEl);
+            };
+            document.body.addEventListener('click', (e) => {
+                const btn = e.target.closest('.summarize-btn');
+                if (btn) {
+                    const topic = btn.getAttribute('data-topic');
+                    openSummary(topic);
+                }
+            });
+            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { backdrop.style.display = 'none'; } });
+            closeEl.addEventListener('click', () => { backdrop.style.display = 'none'; });
+
             // Load state and update UI
             loadProgress();
             updateAllUI();
