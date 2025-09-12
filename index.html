@@ -148,14 +148,19 @@
 
         /* Summary modal */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
-.modal { width: min(860px, 92vw); max-height: 88vh; overflow: auto; background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .modal header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
-        .modal header h3 { margin: 0; }
-        .modal .content { padding: 16px; }
-        .modal .close { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
-        .modal .section { margin-bottom: 14px; }
+        .modal { width: min(980px, 95vw); max-height: 90vh; display: grid; grid-template-rows: auto auto 1fr; overflow: hidden; background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .modal header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); gap: 8px; }
+        .modal header h3 { margin: 0; font-size: 1.2rem; }
+        .modal .top-actions { display: flex; gap: 8px; align-items: center; }
+        .modal .close, .modal .open-tab { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+        .modal .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-color); padding: 8px 12px; }
+        .modal .tab-btn { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .modal .tab-btn.active { background: var(--accent-primary); border-color: transparent; }
+        .modal .content { padding: 12px; overflow: auto; }
+        .modal .section { margin-bottom: 16px; }
         .modal .section h4 { margin: 0 0 6px; color: var(--accent-gold); }
-        .modal ul { margin: 4px 0 0 20px; }
+        .modal ul, .modal ol { margin: 6px 0 0 20px; }
+        .modal .pdf-frame { width: 100%; height: 70vh; border: none; background: #1a1a1a; }
 
         /* New Tag Styles */
         .tags-container {
@@ -518,14 +523,28 @@
     </div>
 </div>
 
-<!-- Summary Modal -->
+<!-- Slides/Summary Modal -->
 <div id="summary-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="modal" role="document">
     <header>
-      <h3 id="summary-title">Summary</h3>
-      <button class="close" id="summary-close" aria-label="Close">Close</button>
+      <h3 id="summary-title">Resource</h3>
+      <div class="top-actions">
+        <a id="open-full" class="open-tab" href="#" target="_blank" rel="noopener">Open in new tab</a>
+        <button class="close" id="summary-close" aria-label="Close">Close</button>
+      </div>
     </header>
-    <div class="content" id="summary-content"></div>
+    <div class="tabs" role="tablist">
+      <button id="tab-slides" class="tab-btn active" role="tab" aria-controls="panel-slides" aria-selected="true">Slides</button>
+      <button id="tab-summary" class="tab-btn" role="tab" aria-controls="panel-summary" aria-selected="false">Summary</button>
+    </div>
+    <div class="content">
+      <div id="panel-slides" role="tabpanel" aria-labelledby="tab-slides">
+        <iframe id="pdf-frame" class="pdf-frame" title="Slides PDF"></iframe>
+      </div>
+      <div id="panel-summary" role="tabpanel" aria-labelledby="tab-summary" hidden>
+        <div id="summary-content"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -705,12 +724,11 @@
                     const row = document.createElement('div');
                     row.className = 'resource-row';
                     const slideHref = slideMap[id];
-const slideA = document.createElement('a');
-                    slideA.setAttribute('aria-label','Open slides PDF');
+                    const slideA = document.createElement('a');
                     slideA.className = 'slide-link';
-                    slideA.href = slideHref;
-                    slideA.target = '_blank';
-                    slideA.rel = 'noopener';
+                    slideA.href = '#';
+                    slideA.dataset.href = slideHref;
+                    slideA.textContent = 'Open Slides (PDF)';
                     slideA.textContent = 'Open Slides (PDF)';
                     const tag = document.createElement('span');
                     tag.className = 'tag';
@@ -788,6 +806,31 @@ const slideA = document.createElement('a');
             const titleEl = document.getElementById('summary-title');
             const contentEl = document.getElementById('summary-content');
             const closeEl = document.getElementById('summary-close');
+            const tabSlidesBtn = document.getElementById('tab-slides');
+            const tabSummaryBtn = document.getElementById('tab-summary');
+            const panelSlides = document.getElementById('panel-slides');
+            const panelSummary = document.getElementById('panel-summary');
+            const pdfFrame = document.getElementById('pdf-frame');
+            const openFull = document.getElementById('open-full');
+
+            const setTab = (tab) => {
+                if (tab === 'slides') {
+                    tabSlidesBtn.classList.add('active');
+                    tabSummaryBtn.classList.remove('active');
+                    panelSlides.hidden = false;
+                    panelSummary.hidden = true;
+                    tabSlidesBtn.setAttribute('aria-selected','true');
+                    tabSummaryBtn.setAttribute('aria-selected','false');
+                } else {
+                    tabSlidesBtn.classList.remove('active');
+                    tabSummaryBtn.classList.add('active');
+                    panelSlides.hidden = true;
+                    panelSummary.hidden = false;
+                    tabSlidesBtn.setAttribute('aria-selected','false');
+                    tabSummaryBtn.setAttribute('aria-selected','true');
+                }
+            };
+
             const openSummary = (topic) => {
                 const data = byName[topic];
                 if (!data) return;
@@ -810,19 +853,39 @@ const slideA = document.createElement('a');
                 if (data.equations?.length) addSection('Key Equations', data.equations.map(e => `$$${e}$$`));
                 if (data.rules?.length) addSection('Rules', data.rules);
                 if (data.things_to_be_careful_about?.length) addSection('Things to be careful about', data.things_to_be_careful_about);
+                setTab('summary');
                 backdrop.style.display = 'flex';
                 // Typeset math in modal
                 typesetMath(contentEl);
             };
+
+            const openSlides = (title, href) => {
+                titleEl.textContent = title + ' — Slides';
+                pdfFrame.src = href;
+                openFull.href = href;
+                setTab('slides');
+                backdrop.style.display = 'flex';
+            };
+
+            // Click handlers
             document.body.addEventListener('click', (e) => {
                 const btn = e.target.closest('.summarize-btn');
                 if (btn) {
                     const topic = btn.getAttribute('data-topic');
                     openSummary(topic);
                 }
+                const slide = e.target.closest('.slide-link');
+                if (slide && slide.dataset.href) {
+                    e.preventDefault();
+                    // Determine inferred topic from sibling summarize button if available
+                    const topic = slide.parentElement.querySelector('.summarize-btn')?.getAttribute('data-topic') || 'Slides';
+                    openSlides(topic, slide.dataset.href);
+                }
             });
-            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { backdrop.style.display = 'none'; } });
-            closeEl.addEventListener('click', () => { backdrop.style.display = 'none'; });
+            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { backdrop.style.display = 'none'; pdfFrame.src=''; } });
+            closeEl.addEventListener('click', () => { backdrop.style.display = 'none'; pdfFrame.src=''; });
+            tabSlidesBtn.addEventListener('click', () => setTab('slides'));
+            tabSummaryBtn.addEventListener('click', () => setTab('summary'));
 
             // Load state and update UI
             loadProgress();
