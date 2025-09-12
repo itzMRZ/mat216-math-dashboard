@@ -1,0 +1,41 @@
+name: Optimize and commit slides PDFs
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'slides/**.pdf'
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ghostscript
+        run: sudo apt-get update && sudo apt-get install -y ghostscript
+
+      - name: Compress PDFs in slides/
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in slides/*.pdf; do
+            echo "Compressing $f"
+            gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile="${f%.pdf}.min.pdf" "$f"
+            # Keep original as backup once; replace with min
+            mv -f "${f%.pdf}.min.pdf" "$f"
+          done
+      
+      - name: Commit optimized PDFs
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add slides/*.pdf
+          if git diff --cached --quiet; then
+            echo "No PDF changes to commit"
+          else
+            git commit -m "CI: compress slides PDFs for web"
+            git push
+          fi
