@@ -1,0 +1,85 @@
+name: Compress PDFs
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'slides/**/*.pdf'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'slides/**/*.pdf'
+
+permissions:
+  contents: write
+
+jobs:
+  compress-pdfs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Install Ghostscript
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ghostscript
+    
+    - name: Compress PDFs
+      run: |
+        find slides/ -name "*.pdf" -type f | while read pdf; do
+          echo "Processing: $pdf"
+          original_size=$(stat -c%s "$pdf")
+          echo "Original size: $original_size bytes"
+          
+          # Create compressed version with good quality/size balance
+          gs -sDEVICE=pdfwrite \
+             -dCompatibilityLevel=1.4 \
+             -dPDFSETTINGS=/ebook \
+             -dNOPAUSE \
+             -dQUIET \
+             -dBATCH \
+             -sOutputFile="${pdf}.compressed" \
+             "$pdf"
+          
+          if [ -f "${pdf}.compressed" ]; then
+            compressed_size=$(stat -c%s "${pdf}.compressed")
+            echo "Compressed size: $compressed_size bytes"
+            
+            # Only replace if compression achieved significant reduction (>10%)
+            reduction_percent=$((100 - (compressed_size * 100 / original_size)))
+            echo "Compression: ${reduction_percent}%"
+            
+            if [ $reduction_percent -gt 10 ]; then
+              mv "${pdf}.compressed" "$pdf"
+              echo "✓ Replaced $pdf with compressed version"
+            else
+              rm "${pdf}.compressed"
+              echo "✓ Kept original $pdf (minimal compression benefit)"
+            fi
+          else
+            echo "✗ Failed to compress $pdf"
+          fi
+          echo "---"
+        done
+    
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit compressed PDFs
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add slides/
+        git commit -m "chore: compress PDF slides to reduce repository size [skip ci]"
+        git push
