@@ -1,3 +1,4 @@
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/itzMRZ/mat216-math-dashboard?utm_source=oss&utm_medium=github&utm_campaign=itzMRZ%2Fmat216-math-dashboard&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 # MAT216 Math Dashboard
 
 A modern, enhanced study dashboard for MAT216 Final Exam preparation with improved UI and modularity.
