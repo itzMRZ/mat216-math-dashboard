@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A robust and reliable MAT216 Final Exam study dashboard with topic tags for practice problems.">
     <title>MAT216 Final Exam Prep (v4 - Tagged)</title>
-    
+
     <!-- MathJax v3 for LaTeX rendering -->
     <script>
       window.MathJax = {
@@ -49,200 +49,11 @@
     <!-- Favicon: calculator icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='6' width='48' height='52' rx='6' fill='%232d2d2d' stroke='%236a82fb' stroke-width='2'/%3E%3Crect x='16' y='12' width='32' height='10' rx='2' fill='%231e1e1e'/%3E%3Cg fill='%236a82fb'%3E%3Crect x='16' y='26' width='8' height='8' rx='2'/%3E%3Crect x='28' y='26' width='8' height='8' rx='2'/%3E%3Crect x='40' y='26' width='8' height='8' rx='2'/%3E%3Crect x='16' y='38' width='8' height='8' rx='2'/%3E%3Crect x='28' y='38' width='8' height='8' rx='2'/%3E%3Crect x='40' y='38' width='8' height='8' rx='2'/%3E%3C/g%3E%3C/svg%3E">
 
-    <style>
-        :root {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --block-bg: #282828;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b3b3b3;
-            --header-color: #ffffff;
-            --border-color: #333333;
-            --accent-primary: #6a82fb;
-            --accent-green: #1db954;
-            --accent-gold: #f9d56e;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background-color: var(--container-bg);
-            padding: 30px;
-            border-radius: 16px;
-        }
-        .header-grid {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .header-title h1 { font-size: 2.5em; margin: 0; color: var(--header-color); }
-        .header-title p { margin: 5px 0 0; color: var(--text-secondary); font-size: 1.1em; }
-        .monitor-section { background-color: var(--block-bg); padding: 15px; border-radius: 12px; min-width: 350px; }
-        .monitor-section h3 { margin: 0 0 10px; font-size: 1.1em; text-align: center; color: var(--text-secondary); }
-        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
-        .question-status { background-color: #333; padding: 6px 12px; border-radius: 8px; font-size: 0.9em; transition: all 0.3s ease; text-align: center; }
-        .status-covered { background-color: var(--accent-green); color: white; box-shadow: 0 0 10px rgba(29, 185, 84, 0.4); }
-        .status-not-covered { background-color: #444; color: #aaa; }
-        .status-recommended { border: 1px solid var(--accent-primary); }
-
-        #progress-container { width: 100%; background-color: #333; border-radius: 10px; margin: 30px 0; overflow: hidden; position: sticky; top: 10px; z-index: 100; }
-        #progress-bar { width: 0%; height: 32px; background: linear-gradient(90deg, var(--accent-primary), #a361fe); text-align: center; line-height: 32px; color: white; border-radius: 10px; transition: width 0.5s ease-in-out; font-weight: bold; font-size: 1.1em; }
-        
-        .study-block { background-color: var(--block-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px; }
-        .study-block h2 { font-size: 1.8em; margin: 0 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-        .study-block h3 { font-size: 1.3em; margin: 25px 0 15px; color: var(--accent-gold); }
-        .study-block ul { list-style-type: none; padding-left: 0; }
-        
-        li {
-            background-color: #333;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        li:hover { background-color: #3a3a3a; }
-        .checked-task { border-left-color: var(--accent-green); background-color: #2a3a31; }
-        .checked-task label { text-decoration: line-through; color: #888; }
-        
-        input[type="checkbox"] { margin-right: 15px; min-width: 20px; min-height: 20px; cursor: pointer; accent-color: var(--accent-primary); }
-        label { cursor: pointer; flex-grow: 1; }
-        label a { color: var(--accent-primary); text-decoration: none; }
-        label a:hover { text-decoration: underline; }
-        .milestone { border-left-color: var(--accent-gold); font-weight: bold; }
-
-        .progress-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
-        .progress-controls button { background: var(--accent-primary); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        
-        .practice-tabs { margin-top: 10px; }
-        .tab-header { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .tab-button { background: #2a2a2a; color: #ddd; border: 1px solid #3a3a3a; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .tab-button.active { background: var(--accent-primary); color: #fff; border-color: transparent; }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-        .ask-ai { margin-left: 10px; background: #444; color: #fff; padding: 4px 8px; border-radius: 6px; text-decoration: none; font-size: 0.85em; white-space: nowrap; align-self: center; }
-        .ask-ai:hover { background: #555; }
-        .problem-source { display: block; margin-top: 12px; font-size: 0.8em; background-color: #444; padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); width: fit-content; }
-        .katex-display { margin: 8px 0 !important; }
-
-        /* Resource row below videos */
-.resource-row { display: grid; grid-template-columns: auto auto auto 1fr; gap: 10px; align-items: center; margin: 10px 0 0 35px; }
-        .resource-row .tag { background: #3a3a3a; border: 1px solid #4a4a4a; color: #bbb; padding: 2px 6px; border-radius: 6px; font-size: 0.75em; }
-.slide-link { background: #2a2a2a; color: #fff; padding: 6px 10px; border-radius: 6px; text-decoration: none; border: 1px solid #3a3a3a; white-space: nowrap; }
-        .slide-link:hover { background: #333; }
-.summarize-btn { background: var(--accent-primary); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; justify-self: start; }
-        .summarize-btn:hover { opacity: 0.95; }
-
-        /* Summary modal */
-        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal { width: min(980px, 95vw); max-height: 90vh; display: grid; grid-template-rows: auto auto 1fr; overflow: hidden; background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .modal header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); gap: 8px; }
-        .modal header h3 { margin: 0; font-size: 1.2rem; }
-        .modal .top-actions { display: flex; gap: 8px; align-items: center; }
-        .modal .close, .modal .open-tab { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
-        .modal .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-color); padding: 8px 12px; }
-        .modal .tab-btn { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-        .modal .tab-btn.active { background: var(--accent-primary); border-color: transparent; }
-        .modal .content { padding: 12px; overflow: auto; }
-        .modal .section { margin-bottom: 16px; }
-        .modal .section h4 { margin: 0 0 6px; color: var(--accent-gold); }
-.modal ul, .modal ol { margin: 6px 0 0 20px; padding-left: 1.2em; }
-        .modal li { background: transparent; border: 0; padding: 0; margin: 6px 0; display: list-item; list-style: disc; }
-        .modal .pdf-frame { width: 100%; height: 70vh; border: none; background: #1a1a1a; }
-
-        /* New Tag Styles */
-        .tags-container {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .tag-main, .tag-sub {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-        .tag-main {
-            background-color: var(--accent-gold);
-            color: #121212;
-        }
-        .tag-sub {
-            background-color: #4a4a4a;
-            color: var(--text-primary);
-            border: 1px solid #5a5a5a;
-        }
-
-        /* Math readability tweaks */
-        .katex { font-size: 1.06em; }
-        .katex-display { margin: 16px 0 !important; position: relative; }
-        .katex-display .eq-number {
-            position: absolute;
-            right: -2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 0.95em;
-        }
-        @media (max-width: 600px) {
-            .katex-display .eq-number {
-                position: static;
-                display: block;
-                text-align: right;
-                margin-top: 4px;
-            }
-        }
-        code, pre { background: #1a1a1a; color: #ddd; border: 1px solid #333; border-radius: 6px; }
-        pre { padding: 10px 12px; overflow: auto; }
-        code { padding: 2px 6px; border-radius: 4px; }
-
-        /* Print stylesheet: black-on-white, hide interactive controls */
-        @media print {
-            :root {
-                --bg-color: #ffffff;
-                --container-bg: #ffffff;
-                --block-bg: #ffffff;
-                --text-primary: #000000;
-                --text-secondary: #333333;
-                --header-color: #000000;
-                --border-color: #cccccc;
-            }
-            body { background: #fff; color: #000; }
-            .container { background: #fff; box-shadow: none; }
-            /* Hide non-essential UI */
-            #progress-container,
-            .progress-controls,
-            .monitor-section,
-            .ask-ai,
-            input[type="checkbox"],
-            .problem-source,
-            .tab-header { display: none !important; }
-            /* Show all tab content */
-            .tab-panel { display: block !important; }
-            /* Simplify visuals for print */
-            li { background: #fff; border-color: #ccc; }
-            .tag-main, .tag-sub { display: none !important; }
-            a { color: #000; text-decoration: none; }
-            /* Force math to black for legibility */
-            .katex, .katex * { color: #000 !important; }
-            .katex-display .eq-number { color: #000 !important; }
-        }
-    </style>
+    <!-- External Stylesheets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -270,10 +81,10 @@
         <button id="exportProgress">Export</button>
         <button id="importProgress">Import</button>
         <button id="resetProgress">Reset</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;">
+        <input type="file" id="importFile" accept=".json" class="hidden-input" aria-label="Import progress file">
     </div>
     <div id="progress-container"><div id="progress-bar">0%</div></div>
-    
+
     <!-- Study Plan Section -->
     <div class="study-block">
         <h2>Phase 1: Core Linear Algebra (Approx. 2 Hours)</h2>
@@ -303,7 +114,7 @@
             <li class="milestone"><input type="checkbox" id="milestone-q5"><label for="milestone-q5">Practice & Master Topic 5: Parseval's Identity, Complex Fourier Series</label></li>
         </ul>
     </div>
-    
+
     <!-- Practice Zone Section with Tags -->
     <div class="study-block">
         <h2>Practice Zone</h2>
@@ -324,8 +135,8 @@
                         <span class="tag-sub">Diagonalization</span>
                         <span class="tag-sub">Characteristic Polynomial</span>
                     </div>
-                    <span class="problem-source">2016 Final, Q2c</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Find the matrix P, if it exists, that diagonalizes the matrix A = [[4, 6, 6], [1, 3, 2], [-1, -4, -3]]. Include finding eigenvalues and eigenvectors.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">2016 Final, Q2c</span></label></li>
+
                     <li><input type="checkbox" id="prac-p2"><label for="prac-p2"><b>Half-Range Series:</b> Expand \(f(x) = x\), for \(0 < x < 2\), in a half-range (i) Sine series and (ii) Cosine series.
                     <div class="tags-container">
                         <span class="tag-main">Fourier Series</span>
@@ -333,8 +144,8 @@
                         <span class="tag-sub">Sine Series</span>
                         <span class="tag-sub">Cosine Series</span>
                     </div>
-                    <span class="problem-source">Practice Sheet, Q3</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Expand the function f(x) = x, for 0 < x < 2, in a half-range (i) Sine series and (ii) Cosine series.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">Practice Sheet, Q3</span></label></li>
+
                     <li><input type="checkbox" id="prac-p3"><label for="prac-p3"><b>Parseval's Identity/Series Sum:</b> Find the Fourier series for \(f(x) = x^2\) in \(-\pi \le x \le \pi\) and use it to evaluate the sum:
                     \[ \sum_{n=1}^{\infty} \frac{1}{n^2} \]
                     <div class="tags-container">
@@ -342,22 +153,22 @@
                         <span class="tag-sub">Parseval's Identity</span>
                         <span class="tag-sub">Series Summation</span>
                     </div>
-                    <span class="problem-source">Practice Sheet, Q4</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Find the Fourier series expansion of the function f(x) = x² in the interval -π ≤ x ≤ π and use it to evaluate the sum of the series Σ(1/n²) for n=1 to infinity.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">Practice Sheet, Q4</span></label></li>
+
                     <li><input type="checkbox" id="prac-p4"><label for="prac-p4"><b>Fourier Transform:</b> Find the Fourier transform of the rectangular pulse function:
                     \[ f(x) = \begin{cases} 1, & |x| < a \\ 0, & |x| > a \end{cases} \]
                     <div class="tags-container">
                         <span class="tag-main">Fourier Transform</span>
                         <span class="tag-sub">Integral Transform</span>
                     </div>
-                    <span class="problem-source">Practice Sheet, Q7</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Find the Fourier transform of the rectangular pulse function defined by f(x) = 1 if |x| < a and f(x) = 0 if |x| > a.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">Practice Sheet, Q7</span></label></li>
+
                     <li><input type="checkbox" id="prac-p5"><label for="prac-p5"><b>Fourier Cosine Transform:</b> Determine the Fourier Cosine transform of \(f(x) = e^{-mx}\) for \(m > 0\).
                     <div class="tags-container">
                         <span class="tag-main">Fourier Transform</span>
                         <span class="tag-sub">Cosine Transform</span>
                     </div>
-                    <span class="problem-source">Practice Sheet, Q8a</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Determine the Fourier Cosine transform of f(x) = e^(-mx), where m > 0.">Solve with AI</a></li>
+                    <span class="problem-source">Practice Sheet, Q8a</span></label></li>
                 </ul>
             </div>
 
@@ -370,16 +181,16 @@
                         <span class="tag-sub">Diagonalizability</span>
                         <span class="tag-sub">Geometric Multiplicity</span>
                     </div>
-                    <span class="problem-source">AI Generated</span></label><a class="ask-ai" href="#" data-question="A 3x3 matrix A has eigenvalues λ=1 (with algebraic multiplicity 2) and λ=3. The eigenspace for λ=1 has a dimension of 1 (geometric multiplicity is 1). Is matrix A diagonalizable? Explain why or why not.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">AI Generated</span></label></li>
+
                     <li><input type="checkbox" id="ai-q2"><label for="ai-q2"><b>Inner Product/Gram-Schmidt:</b> Use the Gram-Schmidt process to find an orthonormal basis for the subspace of \(\mathbb{R}^3\) spanned by \(\mathbf{u}_1=(1,1,1)\) and \(\mathbf{u}_2=(0,1,1)\).
                     <div class="tags-container">
                         <span class="tag-main">Inner Product & Orthogonality</span>
                         <span class="tag-sub">Gram-Schmidt</span>
                         <span class="tag-sub">Orthonormal Basis</span>
                     </div>
-                    <span class="problem-source">AI Generated</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Use the Gram-Schmidt process to transform the basis vectors u₁=(1,1,1), u₂=(0,1,1) into an orthonormal basis for the subspace they span in R³.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">AI Generated</span></label></li>
+
                     <li><input type="checkbox" id="ai-q3"><label for="ai-q3"><b>General Fourier Series:</b> Find the Fourier series for the \(2\pi\)-periodic function defined by:
                     \[ f(x) = \begin{cases} 0, & -\pi < x < 0 \\ \pi, & 0 < x < \pi \end{cases} \]
                     <div class="tags-container">
@@ -387,14 +198,14 @@
                         <span class="tag-sub">General Series</span>
                         <span class="tag-sub">Piecewise Function</span>
                     </div>
-                    <span class="problem-source">AI Generated</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Find the Fourier series for the 2π-periodic function (square wave) defined by f(x) = 0 for -π < x < 0 and f(x) = π for 0 < x < π.">Solve with AI</a></li>
-                    
+                    <span class="problem-source">AI Generated</span></label></li>
+
                     <li><input type="checkbox" id="ai-q5"><label for="ai-q5"><b>Complex Fourier Series:</b> Determine the complex Fourier series coefficients \(c_n\) for the function \(f(x) = x\) over the interval \([-1, 1]\).
                     <div class="tags-container">
                         <span class="tag-main">Fourier Series</span>
                         <span class="tag-sub">Complex Series</span>
                     </div>
-                    <span class="problem-source">AI Generated</span></label><a class="ask-ai" href="#" data-question="Explain and solve step-by-step: Determine the complex form of the Fourier series for the function f(x) = x, defined over the interval [-1, 1]. Calculate the coefficients c_n.">Solve with AI</a></li>
+                    <span class="problem-source">AI Generated</span></label></li>
                 </ul>
             </div>
             <div class="tab-panel" id="tab-provided">
@@ -549,356 +360,8 @@
   </div>
 </div>
 
-<script>
-    // This script will run only after the entire page (HTML, CSS, external scripts) is fully loaded.
-    window.onload = function() {
-        
-        // --- CORE ELEMENTS ---
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        const progressBar = document.getElementById('progress-bar');
-        const milestoneMapping = {
-            'q1-monitor': 'milestone-q1', 'q2-monitor': 'milestone-q2', 'q3-monitor': 'milestone-q3',
-            'q4-monitor': 'milestone-q4', 'q5-monitor': 'milestone-q5', 'q6-monitor': 'milestone-q6',
-            'q7-monitor': 'milestone-q7',
-        };
-
-        // --- UI UPDATE FUNCTIONS ---
-
-        const updateTaskStyle = (checkbox) => {
-            const listItem = checkbox.closest('li');
-            if (listItem) listItem.classList.toggle('checked-task', checkbox.checked);
-        };
-
-        const updateProgressBar = () => {
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            const percentage = checkboxes.length > 0 ? (checkedCount / checkboxes.length) * 100 : 0;
-            progressBar.style.width = percentage + '%';
-            progressBar.textContent = Math.round(percentage) + '% Complete';
-        };
-
-        const updateMonitor = () => {
-            for (const monitorId in milestoneMapping) {
-                const milestoneCheckbox = document.getElementById(milestoneMapping[monitorId]);
-                const monitorElement = document.getElementById(monitorId);
-                if (milestoneCheckbox && monitorElement) {
-                    monitorElement.classList.toggle('status-covered', milestoneCheckbox.checked);
-                    monitorElement.classList.toggle('status-not-covered', !milestoneCheckbox.checked);
-                }
-            }
-        };
-
-        const typesetMath = (root) => {
-            if (window.MathJax && MathJax.typesetPromise) {
-                return MathJax.typesetPromise(root ? [root] : undefined);
-            }
-            return Promise.resolve();
-        };
-
-        // Equation numbering for display math
-        const numberEquations = () => {
-            const displays = document.querySelectorAll('.katex-display');
-            let i = 0;
-            displays.forEach(el => {
-                if (!el.querySelector('.eq-number')) {
-                    i += 1;
-                    const tag = document.createElement('span');
-                    tag.className = 'eq-number';
-                    tag.textContent = `(${i})`;
-                    el.appendChild(tag);
-                }
-            });
-        };
-
-        const updateAllUI = () => {
-            checkboxes.forEach(updateTaskStyle);
-            updateProgressBar();
-            updateMonitor();
-        };
-
-        // --- STATE & EVENT HANDLERS ---
-
-        const saveProgress = () => {
-            const progress = {};
-            checkboxes.forEach(cb => { progress[cb.id] = cb.checked; });
-            localStorage.setItem('mat216Progress', JSON.stringify(progress));
-        };
-
-        const loadProgress = () => {
-            const progress = JSON.parse(localStorage.getItem('mat216Progress')) || {};
-            checkboxes.forEach(cb => { cb.checked = progress[cb.id] || false; });
-        };
-        
-        const handleCheckboxChange = (event) => {
-            updateTaskStyle(event.target);
-            updateProgressBar();
-            updateMonitor();
-            saveProgress();
-        };
-
-        const handleTabClick = (event) => {
-            const parentBlock = event.target.closest('.practice-tabs');
-            const targetTabId = event.target.dataset.tab;
-            parentBlock.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            parentBlock.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            const activePanel = parentBlock.querySelector(`#tab-${targetTabId}`);
-            activePanel.classList.add('active');
-            // Typeset math in the newly active panel
-            typesetMath(activePanel);
-        };
-
-        const handleAskAI = (event) => {
-            event.preventDefault();
-            const questionText = event.target.getAttribute('data-question');
-            const encodedQuestion = encodeURIComponent(questionText);
-            window.open(`https://www.google.com/search?q=${encodedQuestion}`, '_blank');
-        };
-
-        const handleExport = () => {
-            const progress = localStorage.getItem('mat216Progress') || '{}';
-            const blob = new Blob([progress], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `mat216-progress-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        };
-
-        const handleImport = (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (typeof data !== 'object' || data === null) throw new Error("Invalid format");
-                    localStorage.setItem('mat216Progress', JSON.stringify(data));
-                    init(); // Re-initialize the dashboard with the new data
-                    alert('Progress imported successfully!');
-                } catch (err) {
-                    alert('Import failed: The file is not a valid JSON progress file.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        };
-
-        const handleReset = () => {
-            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-                localStorage.removeItem('mat216Progress');
-                init(); // Re-initialize to reflect the cleared state
-                alert('Progress has been reset.');
-            }
-        };
-
-        // --- INITIALIZATION ---
-        
-        function init() {
-            // Inject slide links and summarize buttons under each video item
-            (function buildVideoResources(){
-                const slideMap = {
-                    'vid-21': 'slides/Eigenvalue.pdf',
-                    'vid-22': 'slides/Eigenvector.pdf',
-                    'vid-23': 'slides/Diagonalization.pdf',
-                    'vid-31': 'slides/Half-Range-Fourier-Series.pdf',
-                    'vid-32': 'slides/Series-Sum-Parseval.pdf',
-                    'vid-33': 'slides/Complex-Fourier-Series.pdf',
-                    'vid-34': 'slides/Fourier-Transform.pdf',
-                    'vid-35': 'slides/Fourier-Cosine-Sine-Transform.pdf'
-                };
-                const topicMap = {
-                    'vid-21': 'Eigenvalue',
-                    'vid-22': 'Eigenvector',
-                    'vid-23': 'Diagonalization',
-                    'vid-31': 'Half-Range Fourier Series',
-                    'vid-32': "Series Sum using Fourier Series and Parseval's Identity",
-                    'vid-33': 'Complex Fourier Series',
-                    'vid-34': 'General Fourier Transformation / Fourier Integral',
-                    'vid-35': 'Fourier Cosine & Sine Transform'
-                };
-                Object.keys(slideMap).forEach(id => {
-                    const li = document.getElementById(id)?.closest('li');
-                    if (!li) return;
-                    // Avoid duplicating
-                    if (li.nextElementSibling && li.nextElementSibling.classList?.contains('resource-row')) return;
-                    const row = document.createElement('div');
-                    row.className = 'resource-row';
-                    const slideHref = slideMap[id];
-                    const slideA = document.createElement('a');
-                    slideA.className = 'slide-link';
-                    slideA.href = '#';
-                    slideA.dataset.href = slideHref;
-                    slideA.textContent = 'Open Slides (PDF)';
-                    slideA.textContent = 'Open Slides (PDF)';
-                    const tag = document.createElement('span');
-                    tag.className = 'tag';
-                    tag.textContent = 'Slides';
-                    const sumBtn = document.createElement('button');
-                    sumBtn.className = 'summarize-btn';
-                    sumBtn.type = 'button';
-                    sumBtn.textContent = 'Summarize';
-                    sumBtn.setAttribute('data-topic', topicMap[id] || '');
-                    row.appendChild(tag);
-                    row.appendChild(slideA);
-                    row.appendChild(sumBtn);
-                    li.parentElement.insertBefore(row, li.nextSibling);
-                });
-            })();
-
-            // Setup all event listeners
-            checkboxes.forEach(cb => cb.addEventListener('change', handleCheckboxChange));
-            document.querySelectorAll('.tab-button').forEach(btn => btn.addEventListener('click', handleTabClick));
-
-            // Removed legacy single Ask AI click handler; we now provide four direct solution links
-            (function attachSolutionLinksAcross() {
-                const panels = ['#tab-past-paper', '#tab-ai-generated', '#tab-provided'];
-                const isOurLink = (a) => a.classList.contains('solve-wolfram') || a.classList.contains('solve-gpt') || a.classList.contains('solve-perplexity') || a.classList.contains('solve-claude');
-                panels.forEach(sel => {
-                    const container = document.querySelector(sel);
-                    if (!container) return;
-                    container.querySelectorAll('li').forEach(li => {
-                        const label = li.querySelector('label');
-                        if (!label) return;
-                        const q = label.innerText.trim();
-                        // Remove any pre-existing Ask AI style links that aren't ours
-                        li.querySelectorAll('a.ask-ai').forEach(a => { if (!isOurLink(a)) a.remove(); });
-                        // Create helper to append link if missing
-                        const addLink = (cls, text, hrefBase) => {
-                            if (!li.querySelector('.' + cls)) {
-                                const a = document.createElement('a');
-                                a.className = 'ask-ai ' + cls;
-                                a.textContent = text;
-                                a.href = hrefBase + encodeURIComponent(q);
-                                a.target = '_blank';
-                                a.rel = 'noopener';
-                                li.appendChild(a);
-                            }
-                        };
-                        addLink('solve-wolfram', 'Solve with Wolfram', 'https://www.wolframalpha.com/input?i=');
-                        addLink('solve-gpt', 'Solve with GPT', 'https://chat.openai.com/?q=');
-                        addLink('solve-perplexity', 'Solve with Perplexity', 'https://www.perplexity.ai/search?q=');
-                        addLink('solve-claude', 'Solve with Claude', 'https://claude.ai/new?q=');
-                    });
-                });
-            })();
-            
-            const importFileInput = document.getElementById('importFile');
-            document.getElementById('exportProgress').addEventListener('click', handleExport);
-            document.getElementById('importProgress').addEventListener('click', () => importFileInput.click());
-            importFileInput.addEventListener('change', handleImport);
-            document.getElementById('resetProgress').addEventListener('click', handleReset);
-            // Summary modal logic and data
-            const summaryData = [
-{ name: 'Eigenvalue', summary: 'A scalar number $\\lambda$ is called an eigenvalue of a linear transformation $T$ from $V$ to $V$ if there exists a non-zero vector \\vec{v} such that $T(\\vec{v}) = \\lambda \\vec{v}$. Similarly, for an $n \\times n$ square matrix $A$, $\\lambda$ is an eigenvalue if there is a non-zero vector \\vec{v} where $A \\vec{v} = \\lambda \\vec{v}$. The vector \\vec{v} is called an eigenvector of the eigenvalue $\\lambda$.', equations: ['T(\\vec{v}) = \\lambda \\vec{v}', 'A \\vec{v} = \\lambda \\vec{v}', '\\det(A - \\lambda I) = 0'], rules: ['Eigenvalues of an $n \\times n$ matrix $A$ are found by solving the characteristic equation, $\\det(A - \\lambda I) = 0$, where $I$ is the $n \\times n$ identity matrix.', 'For a square matrix $A$ of size $n \\times n$, if $\\lambda_1, \\lambda_2, \\dots, \\lambda_n$ are the eigenvalues of $A$, then:', '$\\mathrm{tr}(A) = \\lambda_1 + \\lambda_2 + \\dots + \\lambda_n$', '$\\det(A) = \\lambda_1 \\cdot \\lambda_2 \\cdot \\dots \\cdot \\lambda_n$', 'If $A$ is an upper or lower triangular matrix, its diagonal elements are the eigenvalues.'], things_to_be_careful_about: ['The vector $\\vec{v}$ must be non-zero (i.e., $\\vec{v} \\neq 0$).', 'Carefully expand the determinant in the characteristic equation to find eigenvalues.'] },
-              { name: 'Eigenvector', summary: 'A non-zero vector \\vec{v} is an eigenvector of an $n \\times n$ square matrix $A$ corresponding to eigenvalue $\\lambda$ if $A \\vec{v} = \\lambda \\vec{v}$. Eigenvalues are found by solving $\\det(A - \\lambda I) = 0$.', equations: ['A \\vec{v} = \\lambda \\vec{v}', '(A - \\lambda I) \\vec{v} = 0'], rules: ['If $\\lambda$ is an eigenvalue of $A$, then a non-trivial solution \\vec{v} of $(A - \\lambda I) \\vec{v} = 0$ is an eigenvector of $A$.', 'There exist infinitely many eigenvectors for each eigenvalue.', 'If \\vec{v} is an eigenvector, then any scalar multiple of \\vec{v} is also an eigenvector.'], things_to_be_careful_about: ['Eigenvectors must be non-trivial (non-zero) solutions.', 'Solve the system $(A-\\lambda I) \\vec{v}=0$ carefully for each eigenvalue.'] },
-              { name: 'Diagonalization', summary: 'An $n \\times n$ matrix $A$ is diagonalizable if there exists an invertible matrix $P$ such that $A = P D P^{-1}$ with diagonal $D$.', equations: ['A = P D P^{-1}', 'D = \\mathrm{diag}(\\lambda_1, \\lambda_2, \\lambda_3, \\dots)', 'A^k = P D^k P^{-1}'], rules: ['An $n \\times n$ matrix is diagonalizable iff it has $n$ linearly independent eigenvectors.', '$D$ holds eigenvalues on the diagonal; columns of $P$ are corresponding eigenvectors in the same order.', 'For powers $A^k$, raise each diagonal entry of $D$ to $k$.'], things_to_be_careful_about: ['Not diagonalizable if geometric multiplicities do not add up to $n$.', 'Order eigenvalues in $D$ to match column order of eigenvectors in $P$.'] },
-              { name: 'General Fourier Series', summary: 'Represent a periodic function of period $2L$ as a sum of sines and cosines.', equations: ['f(x) = \\frac{a_0}{2} + \\sum_{n=1}^{\\infty} a_n \\cos(\\tfrac{n\\pi x}{L}) + \\sum_{n=1}^{\\infty} b_n \\sin(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{1}{L} \\int_{-L}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', 'b_n = \\frac{1}{L} \\int_{-L}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['L is half the period.', 'You can integrate over any interval of length $2L$.'], things_to_be_careful_about: ['Pick the correct $L$ from the period.', 'Handle piecewise definitions by breaking integrals.'] },
-              { name: 'Even and Odd Cases of Fourier Series', summary: 'On $(-L,L)$: even functions have cosine-only series; odd functions have sine-only series.', equations: ['\\text{Even: } f(x) = \\frac{a_0}{2} + \\sum a_n \\cos(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', '\\text{Odd: } f(x) = \\sum b_n \\sin(\\tfrac{n\\pi x}{L})', 'b_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['Even: $b_n=0$; Odd: $a_n=0$.'], things_to_be_careful_about: ['Verify parity on a symmetric interval.'] },
-              { name: 'Half-Range Fourier Series', summary: 'Extend $(0,L)$ data to $(-L,L)$ by even/odd to obtain cosine/sine series.', equations: ['\\text{Cosine: } f(x) = \\frac{a_0}{2} + \\sum a_n \\cos(\\tfrac{n\\pi x}{L})', 'a_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\cos(\\tfrac{n\\pi x}{L}) \\, dx', '\\text{Sine: } f(x) = \\sum b_n \\sin(\\tfrac{n\\pi x}{L})', 'b_n = \\frac{2}{L}\\int_{0}^{L} f(x) \\sin(\\tfrac{n\\pi x}{L}) \\, dx'], rules: ['Choose cosine (even extension) or sine (odd extension) based on problem needs.'], things_to_be_careful_about: ['Use $L$ as the length of $(0,L)$.'] },
-              { name: "Series Sum using Fourier Series and Parseval's Identity", summary: 'Use Fourier series values or Parseval to evaluate infinite sums.', equations: ['\\frac{1}{L} \\int_{-L}^{L} (f(x))^2 dx = \\frac{a_0^2}{2} + \\sum_{n=1}^{\\infty} (a_n^2 + b_n^2)'], rules: ['Evaluate series at convergence points to get sums.', 'Parseval relates integral of $f^2$ to squared coefficients.'], things_to_be_careful_about: ['Choose evaluation points carefully with discontinuities.'] },
-              { name: 'Complex Fourier Series', summary: 'Express $f$ using complex exponentials $c_n e^{i n\\pi x/L}$ with $n\\in\\mathbb{Z}$.', equations: ['f(x) = \\sum_{n=-\\infty}^{\\infty} c_n e^{i \\frac{n\\pi x}{L}}', 'c_n = \\frac{1}{2L} \\int_{-L}^{L} f(x) e^{-i \\frac{n\\pi x}{L}} dx'], rules: ['Sum over all integers $n$.'], things_to_be_careful_about: ['Mind the negative sign in $e^{-i n\\pi x/L}$.'] },
-              { name: 'General Fourier Transformation / Fourier Integral', summary: 'Transform non-periodic $f$ to frequency domain and back.', equations: ['F(\\omega) = \\int_{-\\infty}^{\\infty} f(x) e^{-i\\omega x} dx', 'f(x) = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} F(\\omega) e^{i\\omega x} d\\omega'], rules: ['Integrals are over $(-\\infty,\\infty)$.', 'Here the $1/(2\\pi)$ factor is in the inverse transform.'], things_to_be_careful_about: ['Evaluate improper integrals carefully.'] },
-              { name: 'Fourier Cosine & Sine Transform', summary: 'Transforms on $x\\ge 0$: cosine (even extension) and sine (odd extension).', equations: ['F_c(\\omega) = \\int_{0}^{\\infty} f(x) \\cos(\\omega x) dx', 'f(x) = \\frac{2}{\\pi} \\int_{0}^{\\infty} F_c(\\omega) \\cos(\\omega x) d\\omega', 'F_s(\\omega) = \\int_{0}^{\\infty} f(x) \\sin(\\omega x) dx', 'f(x) = \\frac{2}{\\pi} \\int_{0}^{\\infty} F_s(\\omega) \\sin(\\omega x) d\\omega'], rules: ['Domain is $x\\ge 0$; integrals from $0$ to $\\infty$.'], things_to_be_careful_about: ['Use correct inverse scaling $2/\\pi$.'] }
-            ];
-            const byName = Object.fromEntries(summaryData.map(s => [s.name, s]));
-            const backdrop = document.getElementById('summary-backdrop');
-            const titleEl = document.getElementById('summary-title');
-            const contentEl = document.getElementById('summary-content');
-            const closeEl = document.getElementById('summary-close');
-            const tabSlidesBtn = document.getElementById('tab-slides');
-            const tabSummaryBtn = document.getElementById('tab-summary');
-            const panelSlides = document.getElementById('panel-slides');
-            const panelSummary = document.getElementById('panel-summary');
-            const pdfFrame = document.getElementById('pdf-frame');
-            const openFull = document.getElementById('open-full');
-
-            const setTab = (tab) => {
-                if (tab === 'slides') {
-                    tabSlidesBtn.classList.add('active');
-                    tabSummaryBtn.classList.remove('active');
-                    panelSlides.hidden = false;
-                    panelSummary.hidden = true;
-                    tabSlidesBtn.setAttribute('aria-selected','true');
-                    tabSummaryBtn.setAttribute('aria-selected','false');
-                } else {
-                    tabSlidesBtn.classList.remove('active');
-                    tabSummaryBtn.classList.add('active');
-                    panelSlides.hidden = true;
-                    panelSummary.hidden = false;
-                    tabSlidesBtn.setAttribute('aria-selected','false');
-                    tabSummaryBtn.setAttribute('aria-selected','true');
-                }
-            };
-
-            const openSummary = (topic) => {
-                const data = byName[topic];
-                if (!data) return;
-                titleEl.textContent = topic + ' — Summary';
-                contentEl.innerHTML = '';
-                const addSection = (heading, body) => {
-                    const sec = document.createElement('div');
-                    sec.className = 'section';
-                    const h4 = document.createElement('h4'); h4.textContent = heading; sec.appendChild(h4);
-                    if (Array.isArray(body)) {
-                        const ul = document.createElement('ul');
-                        body.forEach(t => { const li = document.createElement('li'); li.innerHTML = t; ul.appendChild(li); });
-                        sec.appendChild(ul);
-                    } else {
-                        const p = document.createElement('div'); p.innerHTML = body; sec.appendChild(p);
-                    }
-                    contentEl.appendChild(sec);
-                };
-                addSection('Overview', data.summary);
-                if (data.equations?.length) addSection('Key Equations', data.equations.map(e => `$$${e}$$`));
-                if (data.rules?.length) addSection('Rules', data.rules);
-                if (data.things_to_be_careful_about?.length) addSection('Things to be careful about', data.things_to_be_careful_about);
-                setTab('summary');
-                backdrop.style.display = 'flex';
-                // Typeset math in modal
-                typesetMath(contentEl);
-            };
-
-            const openSlides = (title, href) => {
-                titleEl.textContent = title + ' — Slides';
-                pdfFrame.src = href;
-                openFull.href = href;
-                setTab('slides');
-                backdrop.style.display = 'flex';
-            };
-
-            // Click handlers
-            document.body.addEventListener('click', (e) => {
-                const btn = e.target.closest('.summarize-btn');
-                if (btn) {
-                    const topic = btn.getAttribute('data-topic');
-                    openSummary(topic);
-                }
-                const slide = e.target.closest('.slide-link');
-                if (slide && slide.dataset.href) {
-                    e.preventDefault();
-                    // Determine inferred topic from sibling summarize button if available
-                    const topic = slide.parentElement.querySelector('.summarize-btn')?.getAttribute('data-topic') || 'Slides';
-                    openSlides(topic, slide.dataset.href);
-                }
-            });
-            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { backdrop.style.display = 'none'; pdfFrame.src=''; } });
-            closeEl.addEventListener('click', () => { backdrop.style.display = 'none'; pdfFrame.src=''; });
-            tabSlidesBtn.addEventListener('click', () => setTab('slides'));
-            tabSummaryBtn.addEventListener('click', () => setTab('summary'));
-
-            // Load state and update UI
-            loadProgress();
-            updateAllUI();
-            
-            // Render Math last, after all content is in place
-            typesetMath(document.body);
-        }
-
-        // Run the main initialization function
-        init();
-    };
-</script>
+<!-- External JavaScript -->
+<script src="script.js"></script>
 
 </body>
 </html>
